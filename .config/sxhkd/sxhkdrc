@@ -1,0 +1,45 @@
+# Copyright (c) Parhamdev-27
+
+#################################################################
+# KEYBOARD BINDINGS FOR Qtile
+#################################################################
+
+#clipmenu
+super + v
+    CM_LAUNCHER=rofi clipmenu
+
+#Firefox
+super + b
+    firefox
+
+#Pcmanfm
+super + e
+    pcmanfm
+
+#archlinux-logout
+super + x
+    archlinux-logout
+
+#alacritty
+super + Return
+    alacritty
+
+#rofi (dmenu)
+super + d
+    rofi -show drun
+
+#reload sxhkd:
+super + shift + s
+	pkill -USR1 -x sxhkd
+
+#Xcfe4-TaskManager
+ctrl + shift + Escape
+    xfce4-taskmanager
+
+#spectacle (Screenshot)
+Print
+    spectacle
+
+#xfce4-terminal dropdown
+F12
+    xfce4-terminal --drop-down
