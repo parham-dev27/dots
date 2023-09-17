@@ -6,7 +6,8 @@
 
 #clipmenu
 super + v
-    CM_LAUNCHER=rofi clipmenu
+	clipmenu -config ~/.config/rofi/config-center.rasi
+
 
 #Firefox
 super + b
