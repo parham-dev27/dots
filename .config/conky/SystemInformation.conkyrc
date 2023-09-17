@@ -94,7 +94,7 @@ ${font sans-serif:normal:size=8}/drive $alignc ${fs_used /drive} / ${fs_size /dr
 
 ${color4}${font stargate:bold:size=10}NETWORK ${color1}${hr 2}${color2}
 ${font sans-serif:normal:size=8}Local IP:${alignr}External IP:
-${execi 1000 ip a | grep inet | grep -vw lo | grep -v inet6 | cut -d \/ -f1 | sed 's/[^0-9\.]*//g'}  ${alignr}${execi 1000  wget -q -O- http://ipecho.net/plain; echo}
+${execi 1000 ip a | grep inet | grep -vw lo | grep -v inet6 | cut -d \/ -f1 | sed 's/[^0-9\.]*//g'}  ${alignr}${execi 1000  wget -q -O- https://api.ipify.org; echo}
 ${font sans-serif:normal:size=8}Down: ${downspeed enp4s0}  ${alignr}Up: ${upspeed enp4s0} 
 #${downspeedgraph enp4s0 80,130 } ${alignr}${upspeedgraph enp4s0 80,130 }$color
 
