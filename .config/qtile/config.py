@@ -36,6 +36,9 @@ from qtile_extras import widget
 from qtile_extras.widget.decorations import BorderDecoration
 import re
 from locale import setlocale, LC_ALL
+import Qmin.Qminconfig
+from Qmin.Qmin import qmin
+
 
 setlocale(LC_ALL, "")
 
@@ -191,7 +194,8 @@ def changeSoundOutput(qtile):
 @lazy.function
 def switchLayout(qtile):
     p1 = subprocess.Popen(["setxkbmap", "-query"], stdout=subprocess.PIPE)
-    p2 = subprocess.Popen(["grep", "layout"], stdin=p1.stdout, stdout=subprocess.PIPE)
+    p2 = subprocess.Popen(["grep", "layout"],
+                          stdin=p1.stdout, stdout=subprocess.PIPE)
     p3 = subprocess.Popen(
         ["cut", "-d", ":", "-f2"], stdin=p2.stdout, stdout=subprocess.PIPE
     )
@@ -239,6 +243,8 @@ def window_to_next_group(qtile):
 
 
 keys = [
+    Key([mod, "shift"], "m", qmin(), desc="Qmin unminimizer"),
+    Key([mod], "m", lazy.window.toggle_minimize(), desc="Minimize window"),
     # SOUND KEYS
     Key([mod], "F9", changeSoundOutput()),
     Key([mod], "F12", increaseVolume()),
@@ -315,6 +321,7 @@ keys = [
         "Right",
         lazy.layout.shuffle_right().when(layout=["monadtall", "monadwide"]),
     ),
+
 ]
 
 # GROUPS
@@ -376,20 +383,17 @@ for i in groups:
                 lazy.window.togroup(i.name),
                 lazy.group[i.name].toscreen(),
             ),
+
         ]
     )
 
 
-def init_layout_theme():
-    return {
-        "margin": 5,
-        "border_width": 2,
-        "border_focus": "#5e81ac",
-        "border_normal": "#4c566a",
-    }
-
-
-layout_theme = init_layout_theme()
+layout_theme = {
+    "margin": 5,
+    "border_width": 2,
+    "border_focus": "#5e81ac",
+    "border_normal": "#4c566a",
+}
 
 
 layouts = [
@@ -413,217 +417,208 @@ colors = [
     ["#a9a9a9", "#a9a9a9"],  # color09
 ]
 
+widget_defaults = {
+    'font': 'Noto Sans',
+    'fontsize': 12,
+    'padding': 2,
+    'background': colors[1]
+}
 
-# WIDGETS FOR THE BAR
-def init_widgets_defaults():
-    return dict(font="Noto Sans", fontsize=12, padding=2, background=colors[1])
 
-
-widget_defaults = init_widgets_defaults()
-
-
-def init_widgets_list():
-    widgets_list = [
-        widget.Sep(linewidth=0, padding=6, foreground=colors[1], background=colors[0]),
-        widget.GroupBox(
-            font="Noto Sans",
-            fontsize=16,
-            margin_y=3,
-            margin_x=0,
-            padding_y=5,
-            padding_x=3,
-            borderwidth=3,
-            disable_drag=True,
-            active=colors[8],
-            inactive=colors[1],
-            rounded=False,
-            highlight_method="line",
-            this_current_screen_border=colors[6],
-            foreground=colors[1],
-            background=colors[0],
-        ),
-        widget.Sep(linewidth=1, padding=10, foreground=colors[1], background=colors[0]),
-        widget.CurrentLayoutIcon(
-            foreground=colors[1], background=colors[0], padding=0, scale=0.7
-        ),
-        widget.CurrentLayout(
-            font="Noto Sans Bold",
-            foreground=colors[1],
-            background=colors[0],
-        ),
-        widget.Sep(linewidth=1, padding=10, foreground=colors[1], background=colors[0]),
-        widget.WindowName(
-            font="Noto Sans",
-            fontsize=12,
-            foreground=colors[9],
-            background=colors[0],
-        ),
-        widget.Sep(linewidth=0, padding=10, foreground=colors[1], background=colors[0]),
-        widget.Systray(
-            font="Noto Sans",
-            fontsize=12,
-            background=colors[0],
-            icon_size=20,
-            padding=6,
-        ),
-        widget.Sep(linewidth=0, padding=10, foreground=colors[1], background=colors[0]),
-        widget.CheckUpdates(
-            update_interval=1800,
-            distro="Arch_checkupdates",
-            display_format=" {updates}",
-            foreground=colors[5],
-            colour_have_updates=colors[5],
-            colour_no_updates=colors[5],
-            no_update_string=" 0",
-            padding=5,
-            background=colors[0],
-            fontsize=15,
-            font="Hack Nerd Font",
-            decorations=[
-                BorderDecoration(
-                    colour=colors[5],
-                    border_width=[0, 0, 2, 0],
-                    padding_x=None,
-                    padding_y=None,
-                )
-            ],
-        ),
-        widget.Sep(linewidth=0, padding=10, foreground=colors[1], background=colors[0]),
-        widget.CPU(
-            foreground=colors[4],
-            background=colors[0],
-            padding=5,
-            format=" {load_percent}%",
-            fmt="{}",
-            update_interval=2,
-            fontsize=15,
-            font="Hack Nerd Font",
-            decorations=[
-                BorderDecoration(
-                    colour=colors[4],
-                    border_width=[0, 0, 2, 0],
-                    padding_x=None,
-                    padding_y=None,
-                )
-            ],
-        ),
-        widget.ThermalSensor(
-            foreground=colors[4],
-            background=colors[0],
-            threshold=90,
-            fontsize=15,
-            padding=5,
-            fmt=" {}",
-            tag_sensor="Core 0",
-            font="Hack Nerd Font",
-            decorations=[
-                BorderDecoration(
-                    colour=colors[4],
-                    border_width=[0, 0, 2, 0],
-                    padding_x=None,
-                    padding_y=None,
-                )
-            ],
-        ),
-        widget.Sep(linewidth=0, padding=10, foreground=colors[1], background=colors[0]),
-        widget.Memory(
-            fontsize=15,
-            foreground=colors[7],
-            background=colors[0],
-            padding=5,
-            fmt="{}",
-            font="Hack Nerd Font",
-            measure_mem="G",
-            decorations=[
-                BorderDecoration(
+widgets_list = [
+    widget.Sep(linewidth=0, padding=6,
+               foreground=colors[1], background=colors[0]),
+    widget.GroupBox(
+        font="Noto Sans",
+        fontsize=16,
+        margin_y=3,
+        margin_x=0,
+        padding_y=5,
+        padding_x=3,
+        borderwidth=3,
+        disable_drag=True,
+        active=colors[8],
+        inactive=colors[1],
+        rounded=False,
+        highlight_method="line",
+        this_current_screen_border=colors[6],
+        foreground=colors[1],
+        background=colors[0],
+    ),
+    widget.Sep(linewidth=1, padding=10,
+               foreground=colors[1], background=colors[0]),
+    widget.CurrentLayoutIcon(
+        foreground=colors[1], background=colors[0], padding=0, scale=0.7
+    ),
+    widget.CurrentLayout(
+        font="Noto Sans Bold",
+        foreground=colors[1],
+        background=colors[0],
+    ),
+    widget.Sep(linewidth=1, padding=10,
+               foreground=colors[1], background=colors[0]),
+    widget.WindowName(
+        font="Noto Sans",
+        fontsize=12,
+        foreground=colors[9],
+        background=colors[0],
+    ),
+    widget.Sep(linewidth=0, padding=10,
+               foreground=colors[1], background=colors[0]),
+    widget.Systray(
+        font="Noto Sans",
+        fontsize=12,
+        background=colors[0],
+        icon_size=20,
+        padding=6,
+    ),
+    widget.Sep(linewidth=0, padding=10,
+               foreground=colors[1], background=colors[0]),
+    widget.CheckUpdates(
+        update_interval=1800,
+        distro="Arch_checkupdates",
+        display_format=" {updates}",
+        foreground=colors[5],
+        colour_have_updates=colors[5],
+        colour_no_updates=colors[5],
+        no_update_string=" 0",
+        padding=5,
+        background=colors[0],
+        fontsize=15,
+        font="Hack Nerd Font",
+        decorations=[
+            BorderDecoration(
+                colour=colors[5],
+                border_width=[0, 0, 2, 0],
+                padding_x=None,
+                padding_y=None,
+            )
+        ],
+    ),
+    widget.Sep(linewidth=0, padding=10,
+               foreground=colors[1], background=colors[0]),
+    widget.CPU(
+        foreground=colors[4],
+        background=colors[0],
+        padding=5,
+        format=" {load_percent}%",
+        fmt="{}",
+        update_interval=2,
+        fontsize=15,
+        font="Hack Nerd Font",
+        decorations=[
+            BorderDecoration(
+                colour=colors[4],
+                border_width=[0, 0, 2, 0],
+                padding_x=None,
+                padding_y=None,
+            )
+        ],
+    ),
+    widget.ThermalSensor(
+        foreground=colors[4],
+        background=colors[0],
+        threshold=90,
+        fontsize=15,
+        padding=5,
+        fmt=" {}",
+        tag_sensor="Core 0",
+        font="Hack Nerd Font",
+        decorations=[
+            BorderDecoration(
+                colour=colors[4],
+                border_width=[0, 0, 2, 0],
+                padding_x=None,
+                padding_y=None,
+            )
+        ],
+    ),
+    widget.Sep(linewidth=0, padding=10,
+               foreground=colors[1], background=colors[0]),
+    widget.Memory(
+        fontsize=15,
+        foreground=colors[7],
+        background=colors[0],
+        padding=5,
+        fmt="{}",
+        font="Hack Nerd Font",
+        measure_mem="G",
+        decorations=[
+            BorderDecoration(
                     colour=colors[7],
                     border_width=[0, 0, 2, 0],
                     padding_x=None,
                     padding_y=None,
-                )
-            ],
-        ),
-        widget.Sep(linewidth=0, padding=10, foreground=colors[1], background=colors[0]),
-        widget.KeyboardLayout(
-            font="Hack Nerd Font",
-            foreground=colors[8],
-            background=colors[0],
-            fmt=" {}",
-            padding=5,
-            configured_keyboards=["de", "ir,de"],
-            fontsize=15,
-            decorations=[
-                BorderDecoration(
-                    colour=colors[8],
-                    border_width=[0, 0, 2, 0],
-                    padding_x=2,
-                    padding_y=None,
-                )
-            ],
-        ),
-        widget.Sep(linewidth=0, padding=10, foreground=colors[1], background=colors[0]),
-        widget.Volume(
-            font="Hack Nerd Font",
-            foreground=colors[3],
-            background=colors[0],
-            fmt=" {}",
-            padding=5,
-            fontsize=15,
-            mouse_callbacks={"Button1": changeSoundOutput()},
-            decorations=[
-                BorderDecoration(
-                    colour=colors[3],
-                    border_width=[0, 0, 2, 0],
-                    padding_x=2,
-                    padding_y=None,
-                )
-            ],
-        ),
-        widget.Sep(linewidth=0, padding=10, foreground=colors[1], background=colors[0]),
-        widget.Clock(
-            foreground=colors[6],
-            background=colors[0],
-            fontsize=16,
-            font="Hack Nerd Font Bold",
-            format=" %a, %d. %b  %H:%M",
-            timezone="Europe/Berlin",
-            mouse_callbacks={"Button1": gsimplecal()},
-            decorations=[
-                BorderDecoration(
-                    colour=colors[6],
-                    border_width=[0, 0, 2, 0],
-                    padding_x=2,
-                    padding_y=None,
-                )
-            ],
-        ),
-        widget.Sep(linewidth=0, padding=10, foreground=colors[1], background=colors[0]),
-    ]
-    return widgets_list
+            )
+        ],
+    ),
+    widget.Sep(linewidth=0, padding=10,
+               foreground=colors[1], background=colors[0]),
+    widget.KeyboardLayout(
+        font="Hack Nerd Font",
+        foreground=colors[8],
+        background=colors[0],
+        fmt=" {}",
+        padding=5,
+        configured_keyboards=["de", "ir,de"],
+        fontsize=15,
+        decorations=[
+            BorderDecoration(
+                colour=colors[8],
+                border_width=[0, 0, 2, 0],
+                padding_x=2,
+                padding_y=None,
+            )
+        ],
+    ),
+    widget.Sep(linewidth=0, padding=10,
+               foreground=colors[1], background=colors[0]),
+    widget.Volume(
+        font="Hack Nerd Font",
+        foreground=colors[3],
+        background=colors[0],
+        fmt=" {}",
+        padding=5,
+        fontsize=15,
+        mouse_callbacks={"Button1": changeSoundOutput()},
+        decorations=[
+            BorderDecoration(
+                colour=colors[3],
+                border_width=[0, 0, 2, 0],
+                padding_x=2,
+                padding_y=None,
+            )
+        ],
+    ),
+    widget.Sep(linewidth=0, padding=10,
+               foreground=colors[1], background=colors[0]),
+    widget.Clock(
+        foreground=colors[6],
+        background=colors[0],
+        fontsize=16,
+        font="Hack Nerd Font Bold",
+        format=" %a, %d. %b  %H:%M",
+        timezone="Europe/Berlin",
+        mouse_callbacks={"Button1": gsimplecal()},
+        decorations=[
+            BorderDecoration(
+                colour=colors[6],
+                border_width=[0, 0, 2, 0],
+                padding_x=2,
+                padding_y=None,
+            )
+        ],
+    ),
+    widget.Sep(linewidth=0, padding=10,
+               foreground=colors[1], background=colors[0]),
+]
 
 
-widgets_list = init_widgets_list()
-
-
-def init_widgets_screen1():
-    widgets_screen1 = init_widgets_list()
-    return widgets_screen1
-
-
-widgets_screen1 = init_widgets_screen1()
-
-
-def init_screens():
-    return [
-        Screen(
-            top=bar.Bar(widgets=init_widgets_screen1(), size=26, opacity=0.8),
-            wallpaper=f"{home}/.config/wallpapers/arch.png",
-            wallpaper_mode="fill",
-        ),
-    ]
-
-
-screens = init_screens()
+screens = [Screen(
+    top=bar.Bar(widgets=widgets_list, size=26, opacity=0.8),
+    wallpaper=f"{home}/.config/wallpapers/arch.png",
+    wallpaper_mode="fill",
+)]
 
 
 # MOUSE CONFIGURATION
@@ -776,7 +771,7 @@ def assign_app_group(client):
         "audacious",
         "vlc",
     ]
-    d[group_names[7]] = ["obs", "Obs", "guvcview", "Guvcview"]
+    d[group_names[7]] = ["obs", "Obs", "guvcview", "Guvcview", "scrcpy"]
     d[group_names[8]] = []
 
     allowToBeInGroup = [
@@ -868,6 +863,7 @@ floating_layout = layout.Floating(
         Match(wm_class="spectacle"),
         Match(wm_class="persepolis"),
         Match(wm_class="speedcrunch"),
+        Match(wm_class="scrcpy"),
     ],
     fullscreen_border_width=0,
     border_width=0,
